@@ -11,7 +11,7 @@ VALID_DIR = DATA_PATH + 'validation/'
 
 class ModelController:
     def __init__(self):
-        self.BATCH_SIZE = 256
+        self.BATCH_SIZE = 128
         self.VALID_SIZE = 64
         self.IMAGE_SIZE = (150, 150)
         self.IMAGE_SIZE_CHANNELS = (150, 150, 3)
@@ -58,18 +58,18 @@ class ModelController:
 
     def get_model(self):
         model = Sequential()
-        model.add(Convolution2D(64, 6, 6, subsample=(2, 2), activation='relu', input_shape=self.IMAGE_SIZE_CHANNELS))
+        model.add(Convolution2D(32, 3, 3, subsample=(2, 2), activation='relu', input_shape=self.IMAGE_SIZE_CHANNELS))
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode='same'))
-        model.add(Convolution2D(128, 3, 3, activation='relu', border_mode='same'))
+        model.add(Convolution2D(64, 4, 4, activation='relu', border_mode='same'))
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode='same'))
-        model.add(Convolution2D(256, 2, 2, activation='relu', border_mode='same'))
-        model.add(Convolution2D(256, 2, 2, activation='relu', border_mode='same'))
         model.add(Convolution2D(128, 2, 2, activation='relu', border_mode='same'))
+        # model.add(Convolution2D(128, 2, 2, activation='relu', border_mode='same'))
+        model.add(Convolution2D(64, 2, 2, activation='relu', border_mode='same'))
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode='same'))
         model.add(Flatten())
-        model.add(Dense(1024, activation='tanh'))
+        model.add(Dense(256, activation='tanh'))
         model.add(Dropout(.5))
-        model.add(Dense(1024, activation='tanh'))
+        model.add(Dense(256, activation='tanh'))
         model.add(Dropout(.5))
         model.add(Dense(1, activation='softmax'))
         adam_optimizer = Adam(decay=1e-6)
