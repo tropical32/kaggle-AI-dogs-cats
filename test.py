@@ -1,3 +1,2 @@
-from tools import DATA_PATH
-
-train_dir = DATA_PATH + 'train'
+# coding=utf-8
+from tools import TEST_DIR
