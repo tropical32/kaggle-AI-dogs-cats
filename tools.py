@@ -3,7 +3,7 @@ from keras.models import Sequential
 from keras.optimizers import Adam
 from keras.preprocessing.image import ImageDataGenerator
 
-DATA_PATH = '/home/kamil/Documents/kaggle/kagglecatsdogs/'
+DATA_PATH = '/home/kamil/Documents/kaggle/kagglecatsdogs/data/'
 TEST_DIR = DATA_PATH + 'test/'
 TRAIN_DIR = DATA_PATH + 'train/'
 VALID_DIR = DATA_PATH + 'valid/'
@@ -14,17 +14,16 @@ class ImageGeneration:
         self.IMAGE_SIZE = (150, 150)
         self.IMAGE_SIZE_CHANNELS = (150, 150, 3)
         self.__imgdata_generator = ImageDataGenerator(
-            # rescale=1./255.,
-            zca_whitening=True,
+            rescale=1./255.,
             rotation_range=40,
             width_shift_range=.1,
             height_shift_range=.1,
-            shear_range=.1,
+            shear_range=.05,
             zoom_range=.05,
             fill_mode='nearest',
             horizontal_flip=True,
             vertical_flip=True,
-            rescale=.05)
+        )
 
     def get_image_generator(self, mode='train'):
         if mode == 'train':
@@ -40,10 +39,19 @@ class ImageGeneration:
             path,
             target_size=self.IMAGE_SIZE,
             batch_size=32,
-            class_mode='sparse'  # binary?
+            class_mode='sparse'  # or binary?
         )
 
         return img_generator
+
+    def get_sample_img(self):
+        return next(self.get_image_generator())
+
+
+    def show_sample(self):
+        import matplotlib.pyplot as plt
+        plt.imshow(self.get_sample_img()[0][0])
+        plt.show()
 
     def get_model(self):
         model = Sequential()
