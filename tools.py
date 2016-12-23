@@ -6,21 +6,24 @@ from keras.preprocessing.image import ImageDataGenerator
 DATA_PATH = '/home/kamil/Documents/kaggle/kagglecatsdogs/data/'
 TEST_DIR = DATA_PATH + 'test/'
 TRAIN_DIR = DATA_PATH + 'train/'
-VALID_DIR = DATA_PATH + 'valid/'
+VALID_DIR = DATA_PATH + 'validation/'
 
 
-class ImageGeneration:
+class ModelController:
     def __init__(self):
+        self.BATCH_SIZE = 256
+        self.VALID_SIZE = 64
         self.IMAGE_SIZE = (150, 150)
         self.IMAGE_SIZE_CHANNELS = (150, 150, 3)
         self.__imgdata_generator = ImageDataGenerator(
+            # samplewise_std_normalization=True,
             rescale=1./255.,
-            rotation_range=40,
-            width_shift_range=.1,
-            height_shift_range=.1,
+            rotation_range=20,
+            width_shift_range=.05,
+            height_shift_range=.05,
             shear_range=.05,
             zoom_range=.05,
-            fill_mode='nearest',
+            fill_mode='constant',
             horizontal_flip=True,
             vertical_flip=True,
         )
@@ -38,8 +41,8 @@ class ImageGeneration:
         img_generator = self.__imgdata_generator.flow_from_directory(
             path,
             target_size=self.IMAGE_SIZE,
-            batch_size=32,
-            class_mode='sparse'  # or binary?
+            batch_size=self.BATCH_SIZE,
+            class_mode='binary'  # or sparse?
         )
 
         return img_generator
@@ -70,6 +73,6 @@ class ImageGeneration:
         model.add(Dropout(.5))
         model.add(Dense(1, activation='softmax'))
         adam_optimizer = Adam(decay=1e-6)
-        model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer=adam_optimizer)
+        model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer=adam_optimizer)
 
         return model
