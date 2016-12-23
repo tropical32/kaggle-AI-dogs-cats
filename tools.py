@@ -11,16 +11,14 @@ VALID_DIR = DATA_PATH + 'validation/'
 
 class ModelController:
     def __init__(self):
-        self.BATCH_SIZE = 128
-        self.VALID_SIZE = 64
+        self.BATCH_SIZE = 200
+        self.VALID_SIZE = 80
         self.IMAGE_SIZE = (150, 150)
         self.IMAGE_SIZE_CHANNELS = (150, 150, 3)
         self.__imgdata_generator = ImageDataGenerator(
             # samplewise_std_normalization=True,
-            rescale=1./255.,
+            rescale=1. / 255.,
             rotation_range=20,
-            width_shift_range=.05,
-            height_shift_range=.05,
             shear_range=.05,
             zoom_range=.05,
             fill_mode='constant',
@@ -41,15 +39,14 @@ class ModelController:
         img_generator = self.__imgdata_generator.flow_from_directory(
             path,
             target_size=self.IMAGE_SIZE,
-            batch_size=self.BATCH_SIZE,
-            class_mode='binary'  # or sparse?
+            batch_size=32,
+            class_mode='binary'
         )
 
         return img_generator
 
     def get_sample_img(self):
         return next(self.get_image_generator())
-
 
     def show_sample(self):
         import matplotlib.pyplot as plt
@@ -59,20 +56,18 @@ class ModelController:
     def get_model(self):
         model = Sequential()
         model.add(Convolution2D(32, 3, 3, subsample=(2, 2), activation='relu', input_shape=self.IMAGE_SIZE_CHANNELS))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode='same'))
-        model.add(Convolution2D(64, 4, 4, activation='relu', border_mode='same'))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode='same'))
-        model.add(Convolution2D(128, 2, 2, activation='relu', border_mode='same'))
-        # model.add(Convolution2D(128, 2, 2, activation='relu', border_mode='same'))
-        model.add(Convolution2D(64, 2, 2, activation='relu', border_mode='same'))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode='same'))
+        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+        model.add(Convolution2D(64, 3, 3, subsample=(2, 2), activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+        model.add(Convolution2D(128, 3, 3, activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
         model.add(Flatten())
         model.add(Dense(256, activation='tanh'))
-        model.add(Dropout(.5))
-        model.add(Dense(256, activation='tanh'))
-        model.add(Dropout(.5))
-        model.add(Dense(1, activation='softmax'))
-        adam_optimizer = Adam(decay=1e-6)
-        model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer=adam_optimizer)
+        model.add(Dropout(.25))
+        model.add(Dense(64, activation='tanh'))
+        model.add(Dropout(.25))
+        model.add(Dense(1, activation='sigmoid'))
+        optimizer = Adam(decay=1e-6)
+        model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer=optimizer)
 
         return model
