@@ -5,6 +5,7 @@ from keras.preprocessing import image
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 
+
 DATA_PATH = '/home/kamil/Documents/kaggle/kagglecatsdogs/data/'
 TEST_DIR = DATA_PATH + 'test/'
 TRAIN_DIR = DATA_PATH + 'train/'
