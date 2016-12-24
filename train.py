@@ -12,28 +12,35 @@ model_controller.show_sample()
 # get the model
 model = model_controller.get_model()
 
+model_controller.get_validation_data()
+
 
 class LossHistory(Callback):
     def on_train_begin(self, logs={}):
         self.losses = []
+        self.accuracy = []
 
-    def on_batch_end(self, batch, logs={}):
-        self.losses.append(logs.get('loss'))
+    def on_epoch_end(self, epoch, logs={}):
+        self.losses.append(logs.get('val_loss'))
+        self.accuracy.append(logs.get('val_acc'))
 
 
+# log the loss and accuracy
 history = LossHistory()
 checkpointer = ModelCheckpoint('./model.hdf5', monitor='val_loss', verbose=1, save_best_only=True,
                                save_weights_only=False, mode='auto')
 
 # train the model
 model.fit_generator(
-    model_controller.get_image_generator(),
+    model_controller.get_image_generator(mode='train'),
     samples_per_epoch=model_controller.BATCH_SIZE,
-    nb_epoch=10000,
+    nb_epoch=2000,
     validation_data=model_controller.get_image_generator(mode='valid'),
     nb_val_samples=model_controller.VALID_SIZE,
     callbacks=[history, checkpointer]
 )
 
-with open('./losses.txt', 'w') as f:
-    f.write(history.losses)
+# save the loss and accuracy
+with open('./losses.txt', 'a') as f:
+    f.write(str(history.losses))
+    f.write(str(history.accuracy))
