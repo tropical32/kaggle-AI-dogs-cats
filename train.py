@@ -1,8 +1,5 @@
 # coding=utf-8
-
-# test sample images
 from keras.callbacks import Callback, ModelCheckpoint
-
 from tools import ModelController
 
 # get the model controller
@@ -12,6 +9,7 @@ model_controller.show_sample()
 # get the model
 model = model_controller.get_model()
 
+# get validation data
 valid_X, valid_y = model_controller.get_validation_data()
 
 class LossHistory(Callback):
@@ -34,7 +32,7 @@ model.fit_generator(
     model_controller.get_image_generator(),
     samples_per_epoch=model_controller.BATCH_SIZE,
     nb_epoch=2000,
-    validation_data=model_controller.get_image_generator(),
+    validation_data=(valid_X, valid_y),
     nb_val_samples=model_controller.VALID_SIZE,
     callbacks=[history, checkpointer]
 )

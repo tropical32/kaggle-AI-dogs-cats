@@ -53,7 +53,7 @@ class ModelController:
 
         X = []
         for picture in my_list_pictures(VALID_DIR, ext='jpg'):
-            img = img_to_array(load_img(picture, grayscale=False))
+            img = img_to_array(load_img(picture, target_size=self.IMAGE_SIZE_CHANNELS))
             img = img * (1. / 255.)  # rescale the image
             X.append(img)
         X = np.asarray(X)
