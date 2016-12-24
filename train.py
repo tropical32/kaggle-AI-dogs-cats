@@ -12,8 +12,7 @@ model_controller.show_sample()
 # get the model
 model = model_controller.get_model()
 
-model_controller.get_validation_data()
-
+valid_X, valid_y = model_controller.get_validation_data()
 
 class LossHistory(Callback):
     def on_train_begin(self, logs={}):
@@ -32,10 +31,10 @@ checkpointer = ModelCheckpoint('./model.hdf5', monitor='val_loss', verbose=1, sa
 
 # train the model
 model.fit_generator(
-    model_controller.get_image_generator(mode='train'),
+    model_controller.get_image_generator(),
     samples_per_epoch=model_controller.BATCH_SIZE,
     nb_epoch=2000,
-    validation_data=model_controller.get_image_generator(mode='valid'),
+    validation_data=model_controller.get_image_generator(),
     nb_val_samples=model_controller.VALID_SIZE,
     callbacks=[history, checkpointer]
 )

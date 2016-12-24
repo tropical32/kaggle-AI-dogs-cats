@@ -58,7 +58,12 @@ class ModelController:
             X.append(img)
         X = np.asarray(X)
 
-        return X
+        assert len(X) % 2 == 0
+
+        labels_cats = np.zeros(len(X) // 2)
+        labels_dogs = np.ones(len(X) // 2)
+
+        return X, np.append(labels_cats, labels_dogs)
 
     def get_sample_img(self):
         return next(self.get_image_generator())
