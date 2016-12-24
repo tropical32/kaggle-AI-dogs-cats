@@ -1,14 +1,22 @@
+import os
+import re
+
+import numpy as np
 from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense, Dropout
 from keras.models import Sequential
 from keras.optimizers import Adam
-from keras.preprocessing import image
-import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 
 DATA_PATH = '/home/kamil/Documents/kaggle/kagglecatsdogs/data/'
 TEST_DIR = DATA_PATH + 'test/'
 TRAIN_DIR = DATA_PATH + 'train/'
 VALID_DIR = DATA_PATH + 'validation/'
+
+
+def my_list_pictures(directory, ext='jpg|jpeg|bmp|png'):
+    return [os.path.join(root, f)
+            for root, dirs, files in os.walk(directory) for f in files
+            if re.match('^.*\.(' + ext + ')', f)]
 
 
 class ModelController:
@@ -26,34 +34,31 @@ class ModelController:
             horizontal_flip=True,
             vertical_flip=True,
         )
-        self.__imgdata_generator = ImageDataGenerator(
-            rescale=1. / 255.
+
+    def get_image_generator(self):
+        img_generator = self.__imgdata_generator_distorted.flow_from_directory(
+            TRAIN_DIR,
+            target_size=self.IMAGE_SIZE,
+            batch_size=30,
+            class_mode='binary'
         )
 
-    def get_image_generator(self, mode='train'):
-        if mode == 'train':
-            img_generator = self.__imgdata_generator_distorted.flow_from_directory(
-                TRAIN_DIR,
-                target_size=self.IMAGE_SIZE,
-                batch_size=30,
-                class_mode='binary'
-            )
-        elif mode == 'test' or mode == 'valid':
-            if mode == 'test':
-                path = TEST_DIR
-            elif mode == 'valid':
-                path = VALID_DIR
-
-            img_generator = self.__imgdata_generator.flow_from_directory(
-                path,
-                target_size=self.IMAGE_SIZE,
-                batch_size=30,
-                class_mode='binary'
-            )
-        else:
-            raise Exception('Invalid mode; available modes: "train", "test", "valid".')
-
         return img_generator
+
+    def get_validation_data(self):
+        images = []
+        labels = []
+
+        imgs_path = VALID_DIR
+
+        X = []
+        for picture in my_list_pictures(VALID_DIR, ext='jpg'):
+            img = img_to_array(load_img(picture, grayscale=False))
+            img = img * (1. / 255.)  # rescale the image
+            X.append(img)
+        X = np.asarray(X)
+
+        return X
 
     def get_sample_img(self):
         return next(self.get_image_generator())
