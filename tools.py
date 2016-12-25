@@ -7,6 +7,7 @@ from keras.models import Sequential
 from keras.optimizers import Adam
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 
+
 DATA_PATH = '/home/kamil/Documents/kaggle/kagglecatsdogs/data/'
 TEST_DIR = DATA_PATH + 'test/'
 TRAIN_DIR = DATA_PATH + 'train/'
