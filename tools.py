@@ -54,8 +54,6 @@ class ModelController:
         images = []
         labels = []
 
-        imgs_path = VALID_DIR
-
         X = []
         for picture in my_list_pictures(VALID_DIR, ext='jpg'):
             img = img_to_array(load_img(picture, target_size=self.IMAGE_SIZE_CHANNELS))
@@ -69,6 +67,18 @@ class ModelController:
         labels_dogs = np.ones(len(X) // 2)
 
         return X, np.append(labels_cats, labels_dogs)
+
+    def get_test_data(self):
+        images = []
+
+        X=[]
+        for picture in my_list_pictures(TEST_DIR, ext='jpg'):
+            img = img_to_array(load_img(picture, target_size=self.IMAGE_SIZE_CHANNELS))
+            img = img * (1. / 255.)
+            X.append(img)
+        X = np.asarray(X)
+
+        return X
 
     def get_sample_img(self):
         return next(self.get_image_generator())
