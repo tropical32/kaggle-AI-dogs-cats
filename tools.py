@@ -3,8 +3,8 @@ import re
 
 import numpy as np
 from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense, Dropout
-from keras.models import Sequential
-from keras.optimizers import Adam
+from keras.models import Sequential, load_model
+from keras.optimizers import Adam, Adadelta
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 
 DATA_PATH = '/home/kamil/Documents/kaggle/kagglecatsdogs/data/'
@@ -36,14 +36,19 @@ class ModelController:
         )
 
     def get_image_generator(self):
-        img_generator = self.__imgdata_generator_distorted.flow_from_directory(
+        try:
+            return self.__img_generator_distorted
+        except:
+            pass  # not initialized
+
+        self.__img_generator_distorted = self.__imgdata_generator_distorted.flow_from_directory(
             TRAIN_DIR,
             target_size=self.IMAGE_SIZE,
             batch_size=30,
             class_mode='binary'
         )
 
-        return img_generator
+        return self.__img_generator_distorted
 
     def get_validation_data(self):
         images = []
@@ -75,6 +80,18 @@ class ModelController:
         plt.show()
 
     def get_model(self):
+        try:
+            return self.__model
+        except AttributeError:
+            pass  # not initialized
+
+        try:
+            self.__model = load_model('./model.1497-0.18.hdf5')  # TODO: replace with regex
+            print('Found an existing model.')
+            return self.__model
+        except:
+            print('No models saved. Creating a new model...')
+
         model = Sequential()
         model.add(Convolution2D(32, 3, 3, subsample=(2, 2), activation='relu', input_shape=self.IMAGE_SIZE_CHANNELS))
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
@@ -84,11 +101,12 @@ class ModelController:
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
         model.add(Flatten())
         model.add(Dense(256, activation='tanh'))
-        model.add(Dropout(.25))
+        model.add(Dropout(.2))
         model.add(Dense(64, activation='tanh'))
-        model.add(Dropout(.25))
+        model.add(Dropout(.2))
         model.add(Dense(1, activation='sigmoid'))
-        optimizer = Adam(decay=1e-6)
+        optimizer = Adadelta()
         model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer=optimizer)
+        self.__model = model
 
-        return model
+        return self.__model

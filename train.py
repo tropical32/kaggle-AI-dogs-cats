@@ -24,8 +24,8 @@ class LossHistory(Callback):
 
 # log the loss and accuracy
 history = LossHistory()
-checkpointer = ModelCheckpoint('./model.hdf5', monitor='val_loss', verbose=1, save_best_only=True,
-                               save_weights_only=False, mode='auto')
+checkpointer = ModelCheckpoint('./model.{epoch:02d}-{val_loss:.2f}.hdf5', monitor='val_loss',
+                               verbose=1, save_best_only=True, save_weights_only=False, mode='auto')
 
 # train the model
 model.fit_generator(
