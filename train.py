@@ -24,7 +24,7 @@ class LossHistory(Callback):
 
 # log the loss and accuracy
 history = LossHistory()
-checkpointer = ModelCheckpoint('./model.{epoch:02d}-{val_loss:.2f}.hdf5', monitor='val_loss',
+checkpointer = ModelCheckpoint('./model_cifar.{epoch:02d}-{val_loss:.2f}.hdf5', monitor='val_loss',
                                verbose=1, save_best_only=True, save_weights_only=False, mode='auto')
 
 # train the model
@@ -38,6 +38,6 @@ model.fit_generator(
 )
 
 # save the loss and accuracy
-with open('./losses.txt', 'a') as f:
+with open('./losses_cifar.txt', 'a') as f:
     f.write(str(history.losses))
     f.write(str(history.accuracy))

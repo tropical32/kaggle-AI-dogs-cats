@@ -24,8 +24,8 @@ class ModelController:
     def __init__(self):
         self.BATCH_SIZE = 300
         self.VALID_SIZE = 250
-        self.IMAGE_SIZE = (150, 150)
-        self.IMAGE_SIZE_CHANNELS = (150, 150, 3)
+        self.IMAGE_SIZE = (32, 32)
+        self.IMAGE_SIZE_CHANNELS = (32, 32, 3)
         self.__imgdata_generator_distorted = ImageDataGenerator(
             rescale=1. / 255.,
             rotation_range=20,
@@ -102,24 +102,21 @@ class ModelController:
             pass  # not initialized
 
         try:
-            self.__model = load_model('./model.1497-0.18.hdf5')  # TODO: replace with regex
+            self.__model = load_model('./model_cifar.hdf5')  # TODO: replace with regex
             print('Found an existing model.')
             return self.__model
         except:
             print('No models saved. Creating a new model...')
 
         model = Sequential()
-        model.add(Convolution2D(32, 3, 3, subsample=(2, 2), activation='relu', input_shape=self.IMAGE_SIZE_CHANNELS))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-        model.add(Convolution2D(64, 3, 3, subsample=(2, 2), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-        model.add(Convolution2D(128, 3, 3, activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+        model.add(Convolution2D(32, 3, 3, activation='relu', input_shape=self.IMAGE_SIZE_CHANNELS))
+        model.add(MaxPooling2D())
+        model.add(Convolution2D(64, 3, 3, activation='relu'))
+        model.add(Convolution2D(64, 3, 3, activation='relu'))
+        model.add(MaxPooling2D())
         model.add(Flatten())
-        model.add(Dense(256, activation='tanh'))
-        model.add(Dropout(.2))
-        model.add(Dense(64, activation='tanh'))
-        model.add(Dropout(.2))
+        model.add(Dense(512, activation='relu'))
+        model.add(Dropout(.5))
         model.add(Dense(1, activation='sigmoid'))
         optimizer = Adadelta()
         model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer=optimizer)
