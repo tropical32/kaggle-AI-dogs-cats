@@ -15,7 +15,8 @@ VALID_DIR = DATA_PATH + 'validation/'
 
 def my_list_pictures(directory, ext='jpg|jpeg|bmp|png'):
     return [os.path.join(root, f)
-            for root, dirs, files in os.walk(directory) for f in files
+            for root, dirs, files in os.walk(directory) for f in
+            sorted(files, key=lambda name: int(name.split('.')[-2].split('/')[-1]))
             if re.match('^.*\.(' + ext + ')', f)]
 
 
@@ -68,17 +69,22 @@ class ModelController:
 
         return X, np.append(labels_cats, labels_dogs)
 
-    def get_test_data(self):
-        images = []
-
-        X=[]
+    def __test_data_generator(self):
         for picture in my_list_pictures(TEST_DIR, ext='jpg'):
             img = img_to_array(load_img(picture, target_size=self.IMAGE_SIZE_CHANNELS))
             img = img * (1. / 255.)
-            X.append(img)
-        X = np.asarray(X)
+            yield img
 
-        return X
+    def get_test_data(self, batch_size=125):
+        try:
+            self.__test_data_generator_object
+        except AttributeError:
+            self.__test_data_generator_object = self.__test_data_generator()
+
+        imgs = []
+        for i in range(batch_size):
+            imgs.append(next(self.__test_data_generator_object))
+        return np.asarray(imgs)
 
     def get_sample_img(self):
         return next(self.get_image_generator())
