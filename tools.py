@@ -6,6 +6,7 @@ from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense, Dropout
 from keras.models import Sequential, load_model
 from keras.optimizers import Adam, Adadelta
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
+from keras.utils.visualize_util import plot
 
 DATA_PATH = '/home/kamil/Documents/kaggle/kagglecatsdogs/data/'
 TEST_DIR = DATA_PATH + 'test/'
@@ -102,7 +103,7 @@ class ModelController:
             pass  # not initialized
 
         try:
-            self.__model = load_model('./model.1497-0.18.hdf5')  # TODO: replace with regex
+            self.__model = load_model('./model.hdf5')  # TODO: replace with regex
             print('Found an existing model.')
             return self.__model
         except:
@@ -124,5 +125,9 @@ class ModelController:
         optimizer = Adadelta()
         model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer=optimizer)
         self.__model = model
+
+        # plot the model
+        if True:
+            plot(model, to_file='./model.png', show_shapes=True)
 
         return self.__model
