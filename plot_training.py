@@ -1,6 +1,6 @@
 # coding=utf-8
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.interpolate import spline
 
 with open("./losses.txt", "r") as myfile:
