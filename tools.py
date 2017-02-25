@@ -2,10 +2,12 @@ import os
 import re
 
 import numpy as np
-from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense, Dropout
+from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from keras.models import Sequential, load_model
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 from keras.utils.visualize_util import plot
+
+from resnet import ResnetBuilder
 
 DATA_PATH = '/home/kamil/Documents/kaggle/kagglecatsdogs/data/'
 TEST_DIR = DATA_PATH + 'test/'
@@ -23,9 +25,9 @@ def my_list_pictures(directory, ext='jpg|jpeg|bmp|png'):
 class ModelController:
     def __init__(self, model_path=None):
         self.__model_path = model_path
-        self.BATCH_SIZE = 50
-        self.IMAGE_SIZE = (150, 150)
-        self.IMAGE_SIZE_CHANNELS = (150, 150, 3)
+        self.BATCH_SIZE = 25
+        self.IMAGE_SIZE = (224, 224)
+        self.IMAGE_SIZE_CHANNELS = (224, 224, 3)
         self.__imgdata_generator_distorted = ImageDataGenerator(
             rescale=1. / 255.,
             rotation_range=5,
@@ -94,7 +96,6 @@ class ModelController:
 
     def show_sample(self):
         import matplotlib.pyplot as plt
-        plt.imshow(self.get_sample_img()[0][0])
         plt.ion()
         plt.show()
 
@@ -112,20 +113,7 @@ class ModelController:
         except:
             print('No models saved. Creating a new model...')
 
-        model = Sequential()
-        model.add(Convolution2D(64, 2, 2, activation='relu', input_shape=self.IMAGE_SIZE_CHANNELS))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-        model.add(Convolution2D(32, 2, 2, activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-        model.add(Convolution2D(32, 2, 2, activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-        model.add(Flatten())
-        model.add(Dense(256, activation='relu'))
-        model.add(Dropout(.2))
-        model.add(Dense(64, activation='relu'))
-        model.add(Dropout(.2))
-        model.add(Dense(1, activation='sigmoid'))
-        model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer='adam')
+        model = ResnetBuilder().build_resnet_18(self.IMAGE_SIZE_CHANNELS, 1)
         self.__model = model
 
         # plot the model

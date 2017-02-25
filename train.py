@@ -3,11 +3,10 @@ from keras.callbacks import Callback, ModelCheckpoint
 import os
 
 from tools import ModelController
+import matplotlib.pyplot as plt
 
 # get the model controller
-model_controller = ModelController(
-    os.path.join('/media/kamil/c0a6bdfe-d860-4f81-8a6f-1f1d714ac49f/keras/kagglecatsdogs/saves',
-                 'model.32238-0.19.hdf5'))
+model_controller = ModelController()
 model_controller.show_sample()
 
 # get the model
@@ -15,7 +14,6 @@ model = model_controller.get_model()
 
 # get validation data
 valid_X, valid_y = model_controller.get_validation_data()
-
 
 class LossHistory(Callback):
     def on_train_begin(self, logs={}):
@@ -30,7 +28,7 @@ class LossHistory(Callback):
 # log the loss and accuracy
 save_path = '/media/kamil/c0a6bdfe-d860-4f81-8a6f-1f1d714ac49f/keras/kagglecatsdogs/saves/'
 history = LossHistory()
-checkpointer = ModelCheckpoint(save_path + 'model.{epoch:02d}-{val_loss:.2f}.hdf5', monitor='val_loss',
+checkpointer = ModelCheckpoint(save_path + 'modelResNet18.{epoch:02d}-{val_loss:.2f}.hdf5', monitor='val_loss',
                                verbose=1, save_best_only=True, save_weights_only=False, mode='auto')
 
 # train the model
